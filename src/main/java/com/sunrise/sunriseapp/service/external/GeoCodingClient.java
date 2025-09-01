@@ -1,5 +1,7 @@
 package com.sunrise.sunriseapp.service.external;
 
+import com.sunrise.sunriseapp.service.external.records.Coordinates;
+import com.sunrise.sunriseapp.service.external.records.GeoResult;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -21,6 +23,8 @@ public class GeoCodingClient {
                 .queryParam("format", "jsonv2")
                 .queryParam("limit", 1)
                 .build(true).toUriString();
+
+        System.out.println(uri);
 
         List<GeoResult> results = geocodeClient.get().uri(uri).retrieve()
                 .bodyToFlux(GeoResult.class)

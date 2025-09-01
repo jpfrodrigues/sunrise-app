@@ -1,10 +1,16 @@
 package com.sunrise.sunriseapp.service.external;
 
 import com.sunrise.sunriseapp.exception.ExternalApiException;
+import com.sunrise.sunriseapp.service.external.records.SunApiDayResult;
+import com.sunrise.sunriseapp.service.external.records.SunRangeResponse;
+import com.sunrise.sunriseapp.service.external.records.SunResult;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class SunriseSunsetClient {
@@ -16,19 +22,8 @@ public class SunriseSunsetClient {
     }
 
     public SunApiDayResult fetchDay(String location, LocalDate date) {
-        // TODO: geocoding (location -> lat/lon). Por enquanto, mock controlado para manter o fluxo.
-        // Lógica real (exemplo):
-        // var uri = UriComponentsBuilder.fromPath("/json")
-        //      .queryParam("lat", lat)
-        //      .queryParam("lng", lon)
-        //      .queryParam("date", date.toString())
-        //      .build().toUriString();
-        //
-        // var resp = client.get().uri(uri).retrieve()...
-        //
-        // Tratamento de casos polares e erros.
 
-        // MOCK TEMPORÁRIO (remove assim que ligarmos a API real):
+
         if (location.isBlank()) throw new ExternalApiException("Empty location");
         OffsetDateTime sr = date.atStartOfDay(ZoneOffset.UTC).plusHours(6).toOffsetDateTime();
         OffsetDateTime ss = date.atStartOfDay(ZoneOffset.UTC).plusHours(18).toOffsetDateTime();
@@ -40,6 +35,33 @@ public class SunriseSunsetClient {
                 false,
                 false
         );
+    }
+
+    public Map<LocalDate, SunResult> fetchRange(double lat, double lon, LocalDate start, LocalDate end){
+        String uri = UriComponentsBuilder.fromPath("/json")
+                .queryParam("lat", lat)
+                .queryParam("lng", lon)
+                .queryParam("date_start", start.toString())
+                .queryParam("date_end", end.toString())
+                .queryParam("timezone", "UTC")      // devolve tempos relativos a UTC
+                .queryParam("time_format", "unix")  // devolve epoch (UTC)
+                .build(true).toUriString();
+
+        SunRangeResponse resp = client.get().uri(uri)
+                .retrieve()
+                .bodyToMono(SunRangeResponse.class)
+                .block();
+
+        if (resp == null || resp.results() == null) {
+            throw new ExternalApiException("Resposta vazia da SunriseSunset API");
+        }
+
+        Map<LocalDate, SunResult> byDate = new HashMap<>();
+        for (SunResult r : resp.results()) {
+            LocalDate d = LocalDate.parse(r.date());
+            byDate.put(d, r);
+        }
+        return byDate;
     }
 }
 

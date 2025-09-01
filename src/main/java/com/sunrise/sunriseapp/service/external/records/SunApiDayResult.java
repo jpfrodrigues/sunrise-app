@@ -1,4 +1,4 @@
-package com.sunrise.sunriseapp.service.external;
+package com.sunrise.sunriseapp.service.external.records;
 
 import java.time.OffsetDateTime;
 
