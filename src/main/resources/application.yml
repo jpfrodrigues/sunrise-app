@@ -30,3 +30,7 @@ app:
     base-url: https://nominatim.openstreetmap.org
     timeout-ms: 10000
     user-agent: sunrise-sunset-demo/1.0 (contact:[email protected])
+
+  jwt:
+    secret: "change-me-super-secret-256bits-minimo"
+    expiration-minutes: 60
