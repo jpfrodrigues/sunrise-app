@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/sunrise
+    username: sunrise
+    password: sunrise
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  jpa:
+    hibernate:
+      ddl-auto: create    # Garante que o Hibernate cria ou atualiza o esquema da BD
+    show-sql: true        # Opcional, mostra os comandos SQL no console
+    properties:
+      hibernate.jdbc.time_zone: UTC
